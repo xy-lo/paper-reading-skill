@@ -40,6 +40,7 @@ Read [references/report-template.md](references/report-template.md) before draft
 
 ## Depth control
 
+- **Precision deep read / 论文精读**: when the user explicitly asks for 论文精读, 精读笔记, a source-grounded full-paper reading note, or asks the output to match their own paper-reading note, use [references/precision-reading-style.md](references/precision-reading-style.md). This mode is section-faithful and quote-rich, not the shorter 通俗精读笔记 below. Keep the paper's own section numbering, explain every load-bearing mechanism, embed cropped original figures where they resolve the argument, and format recovered source sentences as orange italics.
 - **Default / 通俗精读笔记**: use `背景 → 方法思路 → 任务/系统产物（按需）→ 实验 → 总结`. Usually four to six top-level sections are enough.
 - **Deep review / 深入评述**: when the user explicitly asks for challenges, architecture details, evidence chain, limitations, or critical judgment, deepen the same narrative with challenge-to-mechanism mapping, ablations, assumptions, and reproducibility notes. Do not automatically expand into a fixed ten-section report.
 - **Short question**: answer inline with the smallest structure that resolves the question; do not force an artifact or full review.
