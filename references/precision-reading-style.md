@@ -190,6 +190,62 @@ supports it. For Related Work, group by research line and compress each line to
 `对象/平台 → 覆盖了什么 → 为什么仍不解决本文问题`. Preserve the paper's first-work
 claim only with its exact scope.
 
+## Algorithm, formula, and terminology granularity
+
+For a precision deep read, “explained the algorithm” is not enough. For each
+algorithm or formula, preserve the reader's next-level questions:
+
+1. **Objective**: what is being minimized/maximized, and for which unit?
+2. **Search space**: exactly what is enumerated; what variables are chosen?
+3. **Feasibility constraints**: memory, topology, shape, ordering, capacity.
+4. **Black-box helper**: if the algorithm calls a helper such as `test()`,
+   state what it returns, what the paper says about its implementation, and
+   explicitly flag what remains unspecified.
+5. **Microexample**: preserve arithmetic groupings from the paper or user note,
+   e.g. `(8α+16)=4×(2+2+2α)` rather than only the simplified form.
+6. **Interface/output**: what is handed to the next scheduler or evaluator?
+
+Do not simplify a cost expression if the simplified form hides the physical
+meaning. Prefer the decomposition that shows “base hops + shared-link penalty”,
+“prefill portion + decode portion”, or “storage cost + recompute cost”.
+
+Add a short **术语与符号表** near the beginning of systems-paper notes. Define
+terms needed to parse later mechanisms: phase/instance differences, queue names,
+scheduling policies, communication primitives, attention variants, and
+paper-specific notation. At first use, also define the term inline when it is
+load-bearing. For LLM serving notes, common examples are:
+
+```text
+phase vs instance
+prefill vs decoding
+QP/QD queue
+FCFS
+chunked prefill
+continuous batching
+goodput
+D2D vs W2W
+MHA vs GQA
+DRAM Costs
+idle/stall
+All-Gather vs All-Reduce
+Reduce-Scatter
+basic TP vs hybrid TP
+```
+
+If a paper leaves a critical implementation detail unspecified, add a clearly
+labeled `精读追问`, not a silent inference. Example:
+
+```markdown
+精读追问：Algorithm 1 的 `test()` 具体如何执行？论文只说明它是单实例模拟器，
+用于估计 phase workload 的 goodput；未给出 ASTRA-sim 配置、goodput 定义、
+lookup-table 命中逻辑和误差校准细节。
+```
+
+Also preserve short but load-bearing source sentences inside method sections,
+not only in Abstract/Introduction/Motivation. A shape/topology constraint such as
+“instances must be rectangular” or a memory assumption such as “D2D bandwidth >
+DRAM bandwidth” often explains the whole mechanism.
+
 ## Source sentences and formatting
 
 - Recover exact English sentences from the PDF, not from a prior note, when the
@@ -260,6 +316,10 @@ Common calibration failures and fixes:
 | Draft omits the user's cross-paper connection | Add a clearly marked `与 WATOS 同款/对照` bridge |
 | Draft invents evaluator-level detail the user does not target | Keep secondary components in overview unless they are novel or requested |
 | Quotes crowd out mechanism explanation | Put Chinese interpretation first and quote only load-bearing sentences |
+| Algorithm explanation stops at loop structure | Preserve objective, feasibility checks, helper behavior, microexample, output interface, and unresolved `test()` details |
+| Formula is over-simplified | Keep the decomposition that reveals physical costs and shared-link penalties |
+| Reader must already know serving vocabulary | Add a terminology table and define phase/instance, queue, batching, GQA, D2D/W2W, and communication primitives |
+| A paper's missing implementation detail is silently filled in | Add a labeled `精读追问` and separate source evidence from inference |
 
 ## QA gate
 
