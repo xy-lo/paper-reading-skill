@@ -1,201 +1,90 @@
-<div align="center">
+# paper-reading-skill
 
-# 📚 paper-reading-skill
+读论文时，只拿到一段“本文提出了什么方法、实验效果很好”的摘要，通常不够。真正有用的笔记要能回答：这一节为什么存在？图在讲什么？核心创新到底新在哪？哪些原文句子和图表之后写作还能用？
 
-![Codex Skill](https://img.shields.io/badge/Codex-Skill-7C3AED?style=for-the-badge)
-![Mode](https://img.shields.io/badge/Mode-Concise_%7C_Precision-0EA5E9?style=for-the-badge)
-![Output](https://img.shields.io/badge/Output-Markdown_%2B_Figures-16A34A?style=for-the-badge)
-![Focus](https://img.shields.io/badge/Focus-Evidence--First_Reading-F59E0B?style=for-the-badge)
-
-**把论文读成可核查、可复用、可继续写作的精读工程。**  
-不是一个泛泛 summarizer，而是一套从 PDF 到证据锚定、机制拆解、原图裁剪、术语表和用户笔记校准的 Codex skill。
-
-[快速开始](#-安装与使用) · [核心创新](#-核心创新) · [精读契约](#-论文精读契约) · [目录结构](#-仓库结构)
-
-</div>
+这个 skill 就是把一次论文阅读整理成这种能回看、能引用、能积累的材料。
 
 ---
 
-## ✨ 它解决什么问题
+## 它会帮你做四件事
 
-普通论文总结经常变成这样：
+### 1. 跟原文章节对应，梳理整体逻辑
 
-```text
-本文提出了一个方法。
-实验结果很好。
-有一定局限性。
-```
+笔记不会凭空重排成“背景 / 方法 / 实验”的万能模板，而是保留论文自己的章节关系。  
+比如一篇系统论文会按原来的 `2.5.1 Central Scheduler`、`2.5.2 Execution Scheduler` 展开，同时先说明这一章在整个框架里的位置：输入是什么、哪些模块联动、结果交给谁。
 
-这类笔记省略了最关键的东西：机制为什么成立、约束是什么、公式怎么读、图放在哪里、原文依据在哪里、术语第一次出现时怎么解释。
+关键英文原句也会摘出来，用橙色斜体标出。这样能分清：
 
-`paper-reading-skill` 把论文阅读变成一条稳定的工程流水线：
+- 哪些是论文原话；
+- 哪些是我的中文整理；
+- 哪些是还没被论文说清楚的实现细节。
 
-```text
-PDF / DOI / arXiv / HTML / pasted text
-        ↓
-证据清单：claim、机制、公式、图表、页码
-        ↓
-路由到通俗精读 或 Precision Deep Read
-        ↓
-机制拆解 + 原文引用 + 原图裁剪 + 术语表
-        ↓
-QA gate 检查事实、公式、图、节号和链接
-        ↓
-Markdown 精读稿 + assets + 可复用写作模式
-```
+### 2. 图文对应，把每张图讲清楚
 
-![paper-reading workflow](docs/assets/workflow.svg)
+论文里的 Figure / Table / Algorithm 不会堆在文末，而是放在解释它的位置附近。
 
----
+比如 WSC-LLM 的 Central Scheduler 一节，会先拆解 resource partition 和 placement 的决策逻辑，再放 Figure 6 / Figure 7。读的时候可以直接对照：
 
-## 🚀 核心创新
+- 架构图里的模块怎么联动；
+- placement 图里哪条路径更短；
+- 公式里的 hop 数为什么这么算；
+- caption 对应 PDF 哪一页。
 
-### 1. 两种模式，一个 skill
+这样图不是装饰，而是帮助理解机制。
 
-| 模式 | 什么时候用 | 产出风格 |
-|---|---|---|
-| **通俗精读 / Concise** | 想快速理解论文的问题、方法、实验和边界 | 短因果主线：为什么值得读 → 问题 → 方法 → 实验 → 价值与边界 |
-| **Precision Deep Read / 论文精读** | 需要逐机制、逐算法、逐图表、逐原文句的精读稿 | 保留论文节号、术语表、机制颗粒度、关键原文和原图裁剪 |
-| **Reader-note calibration** | 你已有自己的最终版笔记，要求 AI 对齐你的读法 | 对比 claim selection、颗粒度、术语、原文位置、插图位置，然后更新规则并重生成 |
+### 3. 总结核心创新，只保留关键逻辑
 
----
+论文里有很多工程细节，但笔记会优先保留支撑核心创新的内容：
 
-### 2. Evidence-first：所有关键判断都能回到论文
+- 关键约束；
+- 设计动机；
+- 算法输入输出；
+- 优化目标；
+- 和 baseline 的差异；
+- 实验里真正支撑结论的数字。
 
-skill 会要求：
+像“作者回顾了相关工作”这种内容会被压缩；像“为什么 D2D bandwidth 大于 DRAM bandwidth 时可以全 wafer DRAM 做 KV cache 池”这种机制会保留。
 
-- 每个关键数字附带实验条件、baseline、指标和范围；
-- 每张使用的图都视觉核验，并保留 Figure/Table/Algorithm 编号与 PDF 页码；
-- 每个承重结论绑定原文句或图表证据；
-- 作者主张、论文证据、读者判断分开；
-- 无法核验的内容明确标为材料不足，而不是脑补。
+如果论文没有说清某个实现细节，例如某个算法调用了 `test()` 但没说明内部实现，笔记会用 `精读追问` 标出来，而不是替作者编一个解释。
 
-这避免精读稿变成“看起来合理但找不到出处”的二次创作。
+### 4. 整理可复用图表和写作句子
 
----
+每篇精读稿后面会有两部分：
 
-### 3. Precision Deep Read：机制级粒度，不是目录复述
+**可复用图表配置表**  
+记录每张图的作用，以及写论文时可以怎么复用它的表达方式。  
+例如：总体框架图、motivation 实验图、机制对比图、end-to-end 性能图、ablation 图分别适合放在哪类论文里。
 
-论文精读模式会强制回答：
+**高频句式模板**  
+摘出论文里组织 claim、动机、公平比较、机制归因、结论的英文句式。  
+之后写 related work、method motivation 或 evaluation discussion 时，可以直接回看这些句子结构。
 
-```text
-为什么这个组件存在？
-输入和输出是什么？
-关键约束是什么？
-公式在优化什么？
-算法里的黑盒函数做了什么？
-结果交给下一个模块时是什么形态？
-```
-
-例如算法不只写成“枚举配置后选择最优”，而是拆成：
-
-| 检查项 | 要求 |
-|---|---|
-| Objective | 明确最小化/最大化什么，单位是什么 |
-| Search space | 枚举哪些变量：instance size、TP、placement、allocation 等 |
-| Feasibility | 显存、拓扑、矩形形状、容量、队列顺序等约束 |
-| Black-box helper | 如 `test()`、`simu()` 的定位、返回值和论文未说明处 |
-| Microexample | 保留 `(8α+16)=4×(2+2+2α)` 这类物理分解 |
-| Interface | 输出交给哪个 scheduler / evaluator |
-
-> 如果论文没有说清某个实现细节，skill 会用 `精读追问` 标注，而不是悄悄编造。
+这就是“边读边积累”：读一篇文章，同时攒下后面写作需要的证据和表达。
 
 ---
 
-### 4. 术语先讲清，机制才读得懂
+## 实际效果
 
-系统论文经常一上来就是：
+下面是 WSC-LLM 精读稿中 `2.5.1 Central Scheduler` 的节选。  
+里面有中文整理、论文 Figure 6 / Figure 7、橙色原文句，以及公式和数值例的解释。
 
-```text
-phase、instance、QP/QD、FCFS、chunked prefill、continuous batching、goodput、D2D、W2W、GQA、All-Gather、All-Reduce
-```
-
-Precision mode 会在正文前生成 **术语与符号表**，并区分容易混淆的概念：
-
-- `phase` 是处理阶段；`instance` 是承载该阶段的硬件资源组；
-- `QP` 是 prefill queue；`QD` 是 decoding queue；
-- `D2D` 是 wafer 内 die-to-die；`W2W` 是 wafer-to-wafer；
-- GEMM 里的 `K` 不是 Attention 里的 Key；
-- `idle` 是资源空闲，`stall` 更强调任务因等待而暂停。
+![WSC-LLM Central Scheduler 精读效果](docs/assets/wsc-llm-central-scheduler.png)
 
 ---
 
-### 5. Reader-note calibration：对齐你的读法，而不是强行复述目录
+## 颜色和格式的作用
 
-如果你提供自己的最终版笔记，skill 会做小节级对比：
-
-- 同样的机制有没有选中？
-- 颗粒度是否一致？
-- 关键原文句放在哪些判断下面？
-- 图表是否插在同一决策点？
-- 术语是否一致？
-- 是否遗漏了你关心的约束、公式、数值例或开放问题？
-
-然后更新精读规则，并重新生成稿件。  
-这就是从“AI 总结”变成“可校准的个人阅读系统”的关键。
+- **普通中文**：我的整理和解释；
+- **橙色斜体**：论文原文句子；
+- **表格**：配置对比、实验结果、架构候选；
+- **`精读追问`**：论文没说清、需要看代码或问作者的问题；
+- **Figure/Table/Algorithm 编号**：保持和原文一致，方便回查。
 
 ---
 
-## 🧭 两种产出风格
+## 输入
 
-### A. 通俗精读
-
-适合快速理解一篇新论文：
-
-```text
-为什么值得读
-→ 原来有什么问题
-→ 方法怎样一步步解决
-→ 实验说明什么
-→ 价值与边界
-```
-
-输出短因果链、核心图、关键结果和边界条件。
-
-### B. Precision Deep Read
-
-适合组会、复现、写 related work 或准备自己的论文。
-
-会生成：
-
-```text
-论文标题
-→ 来源范围
-→ 全文逻辑总览
-→ 术语与符号表
-→ 按论文节号的机制精读
-→ 关键原文句
-→ 原图裁剪
-→ 实验 / DSE / ablation / placement
-→ 可复用图表配置表
-→ 高频句式模板
-```
-
----
-
-## 🧪 典型请求
-
-```text
-$paper-reading 把这篇 PDF 精读一下，保留论文节号、关键原图和原文句。
-```
-
-```text
-$paper-reading 这是我的最终版精读笔记。对比你生成的版本，找出差距，更新 skill 后重写。
-```
-
-```text
-$paper-reading 不要泛泛总结，把 Algorithm 1/2、公式、约束和 test/simu 这类黑盒函数讲清楚。
-```
-
-```text
-$paper-reading 给这篇系统论文加术语表，解释 phase/instance、QP/QD、FCFS、chunked prefill 和 continuous batching。
-```
-
----
-
-## 📥 你需要提供
-
-最少只需要一个来源：
+可以用下面任意一种来源：
 
 ```text
 PDF
@@ -205,62 +94,65 @@ publisher HTML
 pasted text
 ```
 
-如果想要更贴近你的风格，还可以给：
-
-- 你自己的最终版精读笔记；
-- 关注的论文小节；
-- 目标输出目录；
-- 是否需要裁剪原图；
-- 是否需要术语表和高频句式模板；
-- 是否用于组会、复现、related work 或论文写作。
+如果你希望输出更贴近自己的阅读习惯，也可以把你已有的精读笔记一起给出来。skill 会对比两者的小节、机制、术语、原文句位置和插图位置，再决定要不要调整规则后重新生成。
 
 ---
 
-## 📦 你会得到
+## 使用例子
 
-| 产物 | 说明 |
+```text
+把这篇 PDF 精读一下。
+保留原文章节号、关键英文原句和论文原图。
+公式和算法要拆到能看懂的程度。
+```
+
+```text
+这是我自己的最终版笔记。
+对比你生成的版本，找出差距，更新 skill 后重写。
+```
+
+```text
+这篇系统论文里的 Algorithm 1、test()、公式和约束都解释清楚。
+不要只说“枚举配置然后选择最优”。
+```
+
+---
+
+## 输出形态
+
+这个 skill 不是只有一种固定模板，也不是简单分成两种风格。
+
+`SKILL.md` 里实际定义了几类深度：
+
+| 类型 | 什么时候用 |
 |---|---|
-| `*.md` | 论文精读 / 深入评述笔记 |
-| `assets/` | 从 PDF 裁剪的 Figure / Table / Algorithm 图片 |
-| 术语表 | 在正文前统一解释关键概念 |
-| 原文锚点 | 关键英文原句 + section / figure / page locator |
-| 机制拆解 | 方法、公式、算法、黑盒函数和接口 |
-| 可复用图表配置表 | 每张图的作用与复用方式 |
-| 高频句式模板 | 提炼论文中可复用的写作句式 |
-| QA 结果 | 事实、公式、图片、节号、链接检查 |
+| 默认通俗精读笔记 | 想快速理解论文的问题、方法和结果 |
+| 论文精读 / Precision Deep Read | 需要按原文章节、机制、原图和原文句做完整笔记 |
+| 深入评述 | 需要分析证据链、限制、可复现性或批判性问题 |
+| 短问题回答 | 只问某个概念或机制，不需要生成长文 |
+| 多论文对比 | 分别整理多篇文章，再给出比较和综合 |
+
+所以，如果你明确说“论文精读”，就会进入上面展示的完整精读形态；如果只是问一个概念，就不会强行生成一篇长笔记。
 
 ---
 
-## 🛠 安装与使用
-
-### 安装
+## 安装
 
 ```bash
 git clone https://github.com/xy-lo/paper-reading-skill.git ~/.codex/skills/paper-reading
 ```
 
-重启 Codex，或在任务中显式调用：
+然后在 Codex 里通过：
 
 ```text
 $paper-reading
 ```
 
-### 推荐开场提示
-
-```text
-Use $paper-reading 对这篇 PDF 做 Precision Deep Read。
-要求：
-1. 保留论文节号；
-2. 开头加术语与符号表；
-3. 方法/算法/公式按机制拆解；
-4. 插入裁剪后的原图；
-5. 关键英文原句用橙斜体；
-6. 最后给可复用图表配置表和高频句式模板。
-```
+调用。
 
 ---
 
-## 🗂 仓库结构
+## 仓库结构
 
 ```text
 paper-reading-skill/
@@ -270,7 +162,7 @@ paper-reading-skill/
 │   └── openai.yaml
 ├── docs/
 │   └── assets/
-│       └── workflow.svg
+│       └── wsc-llm-central-scheduler.png
 └── references/
     ├── report-template.md
     ├── precision-reading-style.md
@@ -278,62 +170,16 @@ paper-reading-skill/
     └── reference-style.md
 ```
 
-| 文件 | 作用 |
-|---|---|
-| `SKILL.md` | skill 入口、模式路由和整体工作流 |
-| `references/report-template.md` | 通俗精读与深入评述模板 |
-| `references/precision-reading-style.md` | 论文精读契约、算法/公式/术语颗粒度、用户笔记校准 |
-| `references/figure-and-evidence-rules.md` | 图表选择、视觉核验、证据锚点 |
-| `references/reference-style.md` | 稳定的写作风格来源与适用边界 |
-| `docs/assets/workflow.svg` | README 工作流图 |
-
 ---
 
-## ✅ QA gate
+## 边界
 
-交付前会检查：
+这个 skill 不会：
 
-- 论文节号和顺序是否一致；
-- 数字、公式、算法约束、组件名是否与 PDF 一致；
-- 原文引用是否真实存在且没有改写 claim；
-- 每张图是否被视觉核验、裁剪是否完整；
-- 算法是否有输入/决策/输出或黑盒函数说明；
-- 术语是否在首次使用处或术语表中解释；
-- 相对图片链接是否有效；
-- 用户参考笔记是否导致无证据改写。
+- 把论文逐句翻译成双语全文；
+- 把内容改写成无法回溯来源的泛泛介绍；
+- 在图片没有核验时假装已经看过图；
+- 在论文没有说明实现细节时替作者补结论；
+- 自动生成正式 PPT 或审稿报告。
 
----
-
-## 🚧 边界
-
-- 不做全文逐句双语翻译；这类任务应交给 `nature-reader`。
-- 不自动生成正式 PPT；这类任务应交给 `nature-paper2ppt`。
-- 不模拟正式审稿报告；这类任务应交给 `nature-reviewer`。
-- 无法合法获取全文时，只基于可用摘要/元数据保守输出，并明确来源范围。
-- 图像不可读、PDF 扫描质量差或图表无法裁剪时，会说明证据限制，不会假装已经看图。
-
----
-
-## 🔭 设计方向
-
-当前已经支持：
-
-- PDF / DOI / arXiv / HTML / pasted text；
-- 通俗精读与论文精读；
-- 用户笔记校准；
-- 系统论文术语表；
-- 算法、公式、黑盒函数和微示例规则。
-
-后续适合继续加强：
-
-- 自动维护个人阅读风格 profile；
-- 多论文横向比较模板；
-- related work evidence matrix；
-- 复现实验 checklist；
-- 与写作 / PPT / reviewer skills 的更紧密流水线。
-
----
-
-## 📄 License
-
-查看仓库许可证文件。论文原图版权归原出版方，使用时请遵守来源论文和出版方许可。
+如果任务是全文双语翻译、正式审稿或 PPT 制作，应该交给对应的专门 skill。
