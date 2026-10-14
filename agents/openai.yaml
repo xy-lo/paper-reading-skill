@@ -1,6 +1,6 @@
 interface:
-  display_name: "科研论文精读"
-  short_description: "用通俗、简洁且有图表依据的中文梳理论文问题、方法、实验和边界"
-  default_prompt: "Use $paper-reading 用通俗简洁的中文解读这篇论文，按背景、方法流程、关键图表、实验发现和局限组织内容。"
+  display_name: "论文阅读与精读"
+  short_description: "把论文读成证据锚定的精读工程：通俗总结或机制级 Precision Deep Read，支持原文引用、原图裁剪、术语表和用户笔记校准"
+  default_prompt: "Use $paper-reading to read this paper with evidence-anchored Chinese notes. Choose concise vs precision mode, explain mechanisms and algorithms, attach key original quotes, inspect and crop relevant figures, define terminology, and run the QA gate."
 policy:
   allow_implicit_invocation: true
